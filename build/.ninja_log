@@ -1,7 +1,0 @@
-# ninja log v5
-1	2310	596237711	CMakeFiles/tearex.dir/main.cpp.obj	ffbfbaa440ffcaed
-42	2679	596237712	CMakeFiles/tearex.dir/src/app.cpp.obj	5cbddf94abcfd34c
-2680	8176	596237717	tearex.exe	921345d74f86350c
-56	1135	596238288	CMakeFiles/tearex.dir/main.cpp.obj	ffbfbaa440ffcaed
-1	1349	596238288	CMakeFiles/tearex.dir/src/app.cpp.obj	5cbddf94abcfd34c
-1350	1950	596238288	tearex.exe	921345d74f86350c
