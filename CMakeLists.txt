@@ -4,12 +4,12 @@ set(CMAKE_CXX_VERSION 17)
 
 link_directories(
   $ENV{VULKAN_SDK}/Lib
-  ${CMAKE_SOURCE_DIR}/libs
+  ${CMAKE_SOURCE_DIR}/lib
 )
 
 include_directories(
   $ENV{VULKAN_SDK}/Include
-  ${CMAKE_SOURCE_DIR}/inc
+  ${CMAKE_SOURCE_DIR}/include
 )
 
 file(GLOB_RECURSE SRC_FILES . src/*.cpp)
