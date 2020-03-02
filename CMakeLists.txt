@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.15.3)
-
-set(CMAKE_CXX_VERSION 17)
+set(CMAKE_CXX_STANDARD 17)
 
 link_directories(
   $ENV{VULKAN_SDK}/Lib

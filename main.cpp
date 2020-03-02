@@ -1,8 +1,26 @@
+#include <iostream>
+
 #include "src/util/debug.h"
-#include "src/app.hpp"
+#include "src/systems/systems.hpp"
+#include "src/systems/shared_data.hpp"
 
 int main() {
-  app app;
-  TRY("APPLICATION START", app.start(), return EXIT_FAILURE)
+  SharedSystemData *sharedSystemData = new SharedSystemData {};
+
+  Window window(sharedSystemData);
+  Renderer renderer;
+
+  window.initialise();
+  renderer.initialise();
+
+  while (!sharedSystemData->applicationShouldClose) {
+    window.update();
+  }
+
+  renderer.terminate();
+  window.terminate();
+
+  delete sharedSystemData;
+
   return EXIT_SUCCESS;
 }
