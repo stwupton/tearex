@@ -1,15 +1,21 @@
-#include "renderer.hpp"
+#pragma once
 
-void Renderer::initialise() {
-  RendererInitialiser initialiser;
-  initialiser.run(&this->_sharedData);
-}
+#include "initialiser.cpp"
+#include "shared_data.hpp"
+#include "terminator.cpp"
 
-void Renderer::terminate() {
-  RendererTerminator terminator;
-  terminator.run(&this->_sharedData);
-}
+class VulkanRenderer {
+private:
+  VulkanInitialiser _initialiser;
+  VulkanSharedData _sharedData;
+  VulkanTerminator _terminator;
 
-void Renderer::update() {
+public:
+  void initialise() {
+    this->_initialiser.run(&this->_sharedData);
+  }
 
-}
+  void terminate() {
+    this->_terminator.run(&this->_sharedData);
+  }
+};

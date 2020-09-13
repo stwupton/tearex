@@ -2,10 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../../../util/debug.h"
+#include <util/debug.h>
 
-class SharedRendererData {
-public:
+struct VulkanSharedData {
 #ifdef DEBUG
   VkDebugUtilsMessengerEXT debugMessenger;
 #endif

@@ -1,6 +1,5 @@
 #pragma once
 
-class SharedSystemData {
-public:
+struct ApplicationData {
   bool applicationShouldClose = false;
 };
