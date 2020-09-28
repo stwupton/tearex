@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+
 struct ApplicationData {
-  bool applicationShouldClose = false;
+  std::string name;
+  bool shouldClose = false;
 };

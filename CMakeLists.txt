@@ -14,15 +14,19 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/include
 )
 
-add_executable(tearex main.cpp)
+add_executable(tearex ${CMAKE_SOURCE_DIR}/src/main.cpp)
 add_compile_definitions(${RENDERER} ${WINDOW_MANAGER})
 
 if(RENDERER STREQUAL "VULKAN")
-  find_library(RENDERER_LIB vulkan vulkan-1)
+  set(RENDERER_LIB vulkan-1)
+elseif(RENDERER STREQUAL "OPEN_GL")
+  add_compile_definitions(GLEW_STATIC)
+  set(RENDERER_LIB glew32s opengl32)
 endif()
 
 if(WINDOW_MANAGER STREQUAL "GLFW3")
-  find_library(WINDOW_MANAGER_LIB glfw glfw3)
+  add_compile_definitions(GLFW_INCLUDE_NONE)
+  set(WINDOW_MANAGER_LIB glfw3)
 endif()
 
 target_link_libraries(tearex ${RENDERER_LIB} ${WINDOW_MANAGER_LIB})

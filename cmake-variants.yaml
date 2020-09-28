@@ -13,14 +13,15 @@ buildType:
 renderer:
   default: VULKAN
   choices:
-    vulkan:
+    openGL:
       short: OpenGL
       long: Use OpenGL.
       settings: 
         RENDERER: OPEN_GL
-    openGL: 
+        WINDOW_MANAGER: GLFW3
+    vulkan: 
       short: Vulkan
       long: Use Vulkan.
       settings:
         RENDERER: VULKAN
-        WINDOW_MANGER: GLFW3
+        WINDOW_MANAGER: GLFW3

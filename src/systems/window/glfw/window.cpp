@@ -6,19 +6,23 @@
 
 class GlfwWindow {
 private:
-  ApplicationData *_sharedSystemData;
+  ApplicationData *_applicationData;
   GLFWwindow *_window;
 
 public:
   GlfwWindow(ApplicationData *sharedSystemData) {
-    this->_sharedSystemData = sharedSystemData;
+    this->_applicationData = sharedSystemData;
   }
 
   void initialise() {
     glfwInit();
+
+    const char *windowName = this->_applicationData->name.c_str();
+    this->_window = glfwCreateWindow(800, 600, windowName, nullptr, nullptr);
+
+    glfwMakeContextCurrent(this->_window);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    this->_window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
   }
 
   void terminate() {
@@ -28,8 +32,10 @@ public:
 
   void update() {
     glfwPollEvents();
+    glfwSwapInterval(2);
+    glfwSwapBuffers(this->_window);
 
     bool shouldClose = glfwWindowShouldClose(this->_window);
-    this->_sharedSystemData->applicationShouldClose = shouldClose;
+    this->_applicationData->shouldClose = shouldClose;
   }
 };

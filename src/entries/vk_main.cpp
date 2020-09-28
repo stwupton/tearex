@@ -14,7 +14,7 @@ int main() {
   window.initialise();
   renderer.initialise();
 
-  while (!applicationData->applicationShouldClose) {
+  while (!applicationData->shouldClose) {
     window.update();
   }
 
