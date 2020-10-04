@@ -6,16 +6,16 @@
 
 class VulkanRenderer {
 private:
-  VulkanInitialiser _initialiser;
-  VulkanSharedData _sharedData;
-  VulkanTerminator _terminator;
+	VulkanInitialiser _initialiser;
+	VulkanSharedData _sharedData;
+	VulkanTerminator _terminator;
 
 public:
-  void initialise() {
-    this->_initialiser.run(&this->_sharedData);
-  }
+	void initialise() {
+		this->_initialiser.run(&this->_sharedData);
+	}
 
-  void terminate() {
-    this->_terminator.run(&this->_sharedData);
-  }
+	void terminate() {
+		this->_terminator.run(&this->_sharedData);
+	}
 };

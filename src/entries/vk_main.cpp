@@ -6,22 +6,22 @@
 #include <util/debug.h>
 
 int main() {
-  ApplicationData *applicationData = new ApplicationData {};
+	ApplicationData *applicationData = new ApplicationData {};
 
-  GlfwWindow window(applicationData);
-  VulkanRenderer renderer;
+	GlfwWindow window(applicationData);
+	VulkanRenderer renderer;
 
-  window.initialise();
-  renderer.initialise();
+	window.initialise();
+	renderer.initialise();
 
-  while (!applicationData->shouldClose) {
-    window.update();
-  }
+	while (!applicationData->shouldClose) {
+		window.update();
+	}
 
-  renderer.terminate();
-  window.terminate();
+	renderer.terminate();
+	window.terminate();
 
-  delete applicationData;
+	delete applicationData;
 
-  return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

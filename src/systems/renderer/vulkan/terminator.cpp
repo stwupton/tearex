@@ -7,14 +7,14 @@
 
 class VulkanTerminator {
 public:
-  void run(VulkanSharedData *sharedData) {
+	void run(VulkanSharedData *sharedData) {
 #ifdef DEBUG
-    ExtensionFunctions::vkDestroyDebugUtilsMessengerEXT(
-      sharedData->instance,
-      sharedData->debugMessenger,
-      nullptr
-    );
+		ExtensionFunctions::vkDestroyDebugUtilsMessengerEXT(
+			sharedData->instance,
+			sharedData->debugMessenger,
+			nullptr
+		);
 #endif
-    vkDestroyInstance(sharedData->instance, nullptr);
-  }
+		vkDestroyInstance(sharedData->instance, nullptr);
+	}
 };

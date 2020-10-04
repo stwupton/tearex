@@ -6,9 +6,9 @@
 
 struct VulkanSharedData {
 #ifdef DEBUG
-  VkDebugUtilsMessengerEXT debugMessenger;
+	VkDebugUtilsMessengerEXT debugMessenger;
 #endif
-  VkDevice device;
-  VkInstance instance;
-  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+	VkDevice device;
+	VkInstance instance;
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 };

@@ -3,6 +3,6 @@
 #include <string>
 
 struct ApplicationData {
-  std::string name;
-  bool shouldClose = false;
+	std::string name;
+	bool shouldClose = false;
 };

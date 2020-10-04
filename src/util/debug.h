@@ -7,13 +7,13 @@
 #define DEBUG 1
 
 #define TRY(id, task, on_err)                                \
-  try {                                                      \
-    task;                                                    \
-  } catch (const std::exception &e) {                        \
-    std::cerr << id << " FAILED: " << e.what() << std::endl; \
-    on_err;                                                  \
-  }
-  
+	try {                                                      \
+		task;                                                    \
+	} catch (const std::exception &e) {                        \
+		std::cerr << id << " failed: " << e.what() << std::endl; \
+		on_err;                                                  \
+	}
+	
 #define LOG(message) std::cout << "LOG: " << message << std::endl;
 
 #else

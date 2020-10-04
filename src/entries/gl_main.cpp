@@ -6,23 +6,23 @@
 #include "util/debug.h"
 
 int main() {
-  ApplicationData *applicationData = new ApplicationData {};
-  applicationData->name = "OpenGL Window";
+	ApplicationData *applicationData = new ApplicationData {};
+	applicationData->name = "OpenGL Window";
 
-  GlfwWindow window(applicationData);
-  OpenGLRenderer renderer(applicationData);
+	GlfwWindow window(applicationData);
+	OpenGLRenderer renderer(applicationData);
 
-  window.initialise();
-  TRY("OpenGL Renderer Initialisation: ", renderer.initialise(), NULL)
+	window.initialise();
+	renderer.initialise();
 
-  while (!applicationData->shouldClose) {
-    window.update();
-    renderer.update();
-  }
+	while (!applicationData->shouldClose) {
+		window.update();
+		renderer.update();
+	}
 
-  window.terminate();
+	window.terminate();
 
-  delete applicationData;
+	delete applicationData;
 
-  return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
