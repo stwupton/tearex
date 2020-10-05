@@ -33,8 +33,8 @@ public:
 	}
 
 	void update() const {
-		float x = -0.5f;
-		float y = -0.5f;
+		float x = -.5f;
+		float y = -.5f;
 		float width = 1.0f;
 		float height = 1.0f;
 

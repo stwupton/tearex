@@ -10,7 +10,7 @@ set(
 )
 
 string(REPLACE ";" " " LINK_DIRECTORIES ${CMAKE_LIBRARY_PATH})
-link_directories(LINK_DIRECTORIES)
+link_directories(${LINK_DIRECTORIES})
 
 include_directories(
 	${CMAKE_SOURCE_DIR}/src
@@ -32,8 +32,7 @@ endif()
 
 if(WINDOW_MANAGER STREQUAL "GLFW3")
 	add_compile_definitions(GLFW_INCLUDE_NONE)
-	find_library(WINDOW_MANAGER_LIB glfw3)
-	set(WINDOW_MANAGER_LIB glfw)
+	find_library(WINDOW_MANAGER_LIB NAMES glfw3 glfw)
 endif()
 
 target_link_libraries(TEAREX ${RENDERER_LIB} ${WINDOW_MANAGER_LIB})

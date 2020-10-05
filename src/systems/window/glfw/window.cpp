@@ -20,7 +20,7 @@ public:
 		const char *windowName = this->_applicationData->name.c_str();
 		this->_window = glfwCreateWindow(800, 600, windowName, nullptr, nullptr);
 
-		// glfwMakeContextCurrent(this->_window);
+		glfwMakeContextCurrent(this->_window);
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	}
