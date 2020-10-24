@@ -37,7 +37,7 @@ static void loadTeapot() {
 			const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
 			
 			glBufferData(
-				bufferView.target, 
+				bufferView.target,
 				bufferView.byteLength,
 				&buffer.data.at(0) + bufferView.byteOffset,
 				GL_STATIC_DRAW
