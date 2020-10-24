@@ -24,7 +24,14 @@ add_compile_definitions(${RENDERER} ${WINDOW_MANAGER})
 if(RENDERER STREQUAL "VULKAN")
 	find_library(RENDERER_LIB NAMES vulkan-1 vulkan)
 elseif(RENDERER STREQUAL "OPEN_GL")
-	add_compile_definitions(GLEW_STATIC)
+	add_compile_definitions(
+		GLEW_STATIC 
+
+		# Definitions needed for tinygltf
+		TINYGLTF_IMPLEMENTATION 
+		STB_IMAGE_IMPLEMENTATION 
+		STB_IMAGE_WRITE_IMPLEMENTATION
+	)
 	find_library(GLEW_LIB NAMES glew glew32s GLEW)
 	find_library(OPEN_GL_LIB NAMES opengl opengl32 OpenGL)
 	set(RENDERER_LIB ${GLEW_LIB} ${OPEN_GL_LIB})

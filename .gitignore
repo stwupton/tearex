@@ -2,3 +2,5 @@ lib/
 include/
 build/
 .vscode
+
+!include/tinygltf
