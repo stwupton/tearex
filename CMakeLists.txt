@@ -33,8 +33,8 @@ elseif(RENDERER STREQUAL "OPEN_GL")
 		STB_IMAGE_WRITE_IMPLEMENTATION
 	)
 	find_library(GLEW_LIB NAMES glew glew32s GLEW)
-	find_library(OPEN_GL_LIB NAMES opengl opengl32 OpenGL)
-	set(RENDERER_LIB ${GLEW_LIB} ${OPEN_GL_LIB})
+	find_package(OpenGL REQUIRED)
+	set(RENDERER_LIB ${GLEW_LIB} ${OPENGL_gl_LIBRARY})
 endif()
 
 if(WINDOW_MANAGER STREQUAL "GLFW3")

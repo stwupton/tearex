@@ -21,6 +21,7 @@ int main() {
 	}
 
 	window.terminate();
+	renderer.terminate();
 
 	delete applicationData;
 
