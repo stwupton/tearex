@@ -56,9 +56,12 @@ Model loadModel(const std::string &fileName) {
 			// TODO: Loop through all primitives
 			const tinygltf::Primitive &primitive = mesh.primitives[0];
 
+			glGenBuffers(primitive.attributes.size(), modelComponent.bufferIds);
+
 			int8_t bufferIdIndex = -1;
 			for (const std::pair<const std::string, int> &attribute : primitive.attributes) {
 				bufferIdIndex++;
+				const GLuint bufferId = modelComponent.bufferIds[bufferIdIndex];
 
 				const tinygltf::Accessor &accessor = model.accessors[attribute.second];
 				const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
@@ -72,16 +75,14 @@ Model loadModel(const std::string &fileName) {
 						break;
 				}
 
-				uint32_t *bufferId = &modelComponent.bufferIds[bufferIdIndex];
-				glGenBuffers(1, bufferId);
-				glBindBuffer(bufferView.target, *bufferId);
+				glBindBuffer(bufferView.target, bufferId);
 				glBufferData(
 					bufferView.target,
 					bufferView.byteLength,
 					&buffer.data.at(0) + bufferView.byteOffset,
 					GL_STATIC_DRAW
 				);
-				glVertexAttribPointer(0, typeSize, accessor.componentType, GL_FALSE, sizeof(float) * typeSize, 0);
+				glVertexAttribPointer(bufferIdIndex, typeSize, accessor.componentType, GL_FALSE, sizeof(float) * typeSize, 0);
 				glEnableVertexAttribArray(bufferIdIndex);
 			}
 
@@ -99,6 +100,13 @@ Model loadModel(const std::string &fileName) {
 				&buffer.data.at(0) + bufferView.byteOffset,
 				GL_STATIC_DRAW
 			);
+
+			// if (attribute.first == "POSITION") {
+				// const uint32_t *data = (uint32_t*)buffer.data.data(); 
+				// for (int i = 0; i < 23; i++) {
+				// 	LOG(*(data + buffer)
+				// }
+			// }
 		}
 	}
 
