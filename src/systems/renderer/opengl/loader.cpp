@@ -23,6 +23,7 @@ std::string loadShader(const std::string &fileName) {
 	return load("./../assets/shaders/" + fileName);
 }
 
+// TODO: Cleanup
 Model loadModel(const std::string &fileName) {
 	Model modelComponent;
 
@@ -56,9 +57,34 @@ Model loadModel(const std::string &fileName) {
 			// TODO: Loop through all primitives
 			const tinygltf::Primitive &primitive = mesh.primitives[0];
 
-			glGenBuffers(primitive.attributes.size(), modelComponent.bufferIds);
+			glGenVertexArrays(1, &modelComponent.vertexArrayId);
+			glBindVertexArray(modelComponent.vertexArrayId);
 
-			int8_t bufferIdIndex = -1;
+			glGenBuffers(
+				sizeof(modelComponent.bufferIds) / sizeof(uint32_t), 
+				modelComponent.bufferIds
+			);
+
+			// Generate index buffer
+			{
+				const tinygltf::Accessor &accessor = model.accessors[primitive.indices];
+				const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
+				const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
+
+				modelComponent.vertexLength = bufferView.byteLength / sizeof(GLuint);
+
+				glGenBuffers(1, &modelComponent.bufferIds[0]);
+				glBindBuffer(bufferView.target, modelComponent.bufferIds[0]);
+				glBufferData(
+					bufferView.target,
+					bufferView.byteLength,
+					&buffer.data.at(0) + bufferView.byteOffset,
+					GL_STATIC_DRAW
+				);
+			}
+
+			// Generate vertex buffers
+			int8_t bufferIdIndex = 0;
 			for (const std::pair<const std::string, int> &attribute : primitive.attributes) {
 				bufferIdIndex++;
 				const GLuint bufferId = modelComponent.bufferIds[bufferIdIndex];
@@ -82,31 +108,20 @@ Model loadModel(const std::string &fileName) {
 					&buffer.data.at(0) + bufferView.byteOffset,
 					GL_STATIC_DRAW
 				);
-				glVertexAttribPointer(bufferIdIndex, typeSize, accessor.componentType, GL_FALSE, sizeof(float) * typeSize, 0);
-				glEnableVertexAttribArray(bufferIdIndex);
+
+				// TODO: Come up with a way to make sure that all attributes are in the 
+				// same location.
+				const GLuint vertexAttribId = bufferIdIndex - 1;
+				glVertexAttribPointer(
+					vertexAttribId, 
+					typeSize, 
+					accessor.componentType, 
+					GL_FALSE, 
+					sizeof(float) * typeSize, 
+					0
+				);
+				glEnableVertexAttribArray(vertexAttribId);
 			}
-
-			const tinygltf::Accessor &accessor = model.accessors[primitive.indices];
-			const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
-			const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
-
-			modelComponent.vertexLength = bufferView.byteLength / sizeof(GLuint);
-
-			glGenBuffers(1, &modelComponent.indexBufferId);
-			glBindBuffer(bufferView.target, modelComponent.indexBufferId);
-			glBufferData(
-				bufferView.target,
-				bufferView.byteLength,
-				&buffer.data.at(0) + bufferView.byteOffset,
-				GL_STATIC_DRAW
-			);
-
-			// if (attribute.first == "POSITION") {
-				// const uint32_t *data = (uint32_t*)buffer.data.data(); 
-				// for (int i = 0; i < 23; i++) {
-				// 	LOG(*(data + buffer)
-				// }
-			// }
 		}
 	}
 

@@ -25,11 +25,8 @@ static void handleGLError(
 class OpenGLRenderer {
 private:
 	ApplicationData *_applicationData;
-	ComponentCollection *_components;
-
-	// TODO: delete
-	GLuint _bufferId;
 	GLuint _basicProgramId;
+	ComponentCollection *_components;
 
 public:
 	OpenGLRenderer(
@@ -52,7 +49,7 @@ public:
 		}
 
 		glViewport(0, 0, 800, 600);
-		glClearColor(0.2f, 0.3f, 0.8f, 1.0f);
+		glClearColor(0.f, 0.f, 1.f, 1.0f);
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(handleGLError, nullptr);
 
@@ -86,18 +83,24 @@ public:
 
 	void terminate() const {
 		glDeleteProgram(this->_basicProgramId);
-		glDeleteBuffers(1, &this->_bufferId);
+		// TODO: Add an unload to the model loader when we have one
+		for (const Model &model : this->_components->models) {
+			glDeleteVertexArrays(1, &model.vertexArrayId);
+			glDeleteBuffers(sizeof(model.bufferIds) / sizeof(uint32_t), model.bufferIds);
+		}
 	}
 
 	void update() const {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 		glUseProgram(this->_basicProgramId);
 
 		for (const Model &model : this->_components->models) {
-			for (const uint32_t &bufferId : model.bufferIds) {
-				glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-			}
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model.indexBufferId);
+			glBindVertexArray(model.vertexArrayId);
 			glDrawElements(GL_TRIANGLES, model.vertexLength, GL_UNSIGNED_INT, nullptr);
 		}
 	}

@@ -2,6 +2,7 @@
 
 #include "application_data.hpp"
 #include "component_collection.hpp"
+#include "components/model.hpp"
 #include "systems/window/glfw/window.cpp"
 #include "systems/renderer/opengl/renderer.cpp"
 #include "util/debug.h"
