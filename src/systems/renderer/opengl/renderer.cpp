@@ -56,7 +56,6 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glViewport(0, 0, 800, 600);
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: remove
@@ -99,6 +98,10 @@ public:
 	}
 
 	void update() const {
+		const int width = this->_applicationData->windowWidth;
+		const int height = this->_applicationData->windowHeight;
+
+		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindVertexArray(0);
@@ -107,9 +110,7 @@ public:
 
 		glUseProgram(this->_basicProgramId);
 
-		float aspect = (float)
-			this->_applicationData->windowWidth / 
-			this->_applicationData->windowHeight;
+		float aspect = (float)width / height;
 		glm::mat4 projection = glm::perspective(45.0f, aspect, 1.0f, 150.0f);
 		glm::mat4 view = glm::mat4(1.0f);
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -8.0f));
