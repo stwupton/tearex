@@ -120,7 +120,7 @@ public:
 
 		for (const Model &model : this->_components->models) {
 			glBindVertexArray(model.vertexArrayId);
-			glDrawElements(GL_TRIANGLES, model.vertexLength, GL_UNSIGNED_SHORT, nullptr);
+			glDrawElements(GL_TRIANGLES, model.vertexLength, model.indexType, nullptr);
 		}
 	}
 };

@@ -56,20 +56,17 @@ Model loadModel(const std::string &fileName) {
 			glGenVertexArrays(1, &modelComponent.vertexArrayId);
 			glBindVertexArray(modelComponent.vertexArrayId);
 
-			glGenBuffers(
-				sizeof(modelComponent.bufferIds) / sizeof(uint32_t), 
-				modelComponent.bufferIds
-			);
-
 			// Generate index buffer
 			{
 				const tinygltf::Accessor &accessor = model.accessors[primitive.indices];
 				const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
 				const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
 
-				modelComponent.vertexLength = bufferView.byteLength / sizeof(GLushort);
+				modelComponent.indexType = accessor.componentType;
+				modelComponent.vertexLength = accessor.count;
 
-				glBindBuffer(bufferView.target, modelComponent.bufferIds[0]);
+				glGenBuffers(1, &modelComponent.indexBufferId);
+				glBindBuffer(bufferView.target, modelComponent.indexBufferId);
 				glBufferData(
 					bufferView.target,
 					bufferView.byteLength,
@@ -79,9 +76,13 @@ Model loadModel(const std::string &fileName) {
 			}
 
 			// Generate vertex buffers
+			glGenBuffers(
+				sizeof(modelComponent.bufferIds) / sizeof(uint32_t), 
+				modelComponent.bufferIds
+			);
+
 			int8_t bufferIdIndex = 0;
 			for (const std::pair<const std::string, int> &attribute : primitive.attributes) {
-				bufferIdIndex++;
 				const GLuint bufferId = modelComponent.bufferIds[bufferIdIndex];
 
 				const tinygltf::Accessor &accessor = model.accessors[attribute.second];
@@ -106,7 +107,7 @@ Model loadModel(const std::string &fileName) {
 
 				// TODO: Come up with a way to make sure that all attributes are in the 
 				// same location.
-				const GLuint vertexAttribId = bufferIdIndex - 1;
+				const GLuint vertexAttribId = bufferIdIndex;
 				glVertexAttribPointer(
 					vertexAttribId, 
 					typeSize, 
@@ -116,6 +117,8 @@ Model loadModel(const std::string &fileName) {
 					0
 				);
 				glEnableVertexAttribArray(vertexAttribId);
+
+				bufferIdIndex++;
 			}
 		}
 	}
