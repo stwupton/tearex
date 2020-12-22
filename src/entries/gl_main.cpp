@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "application_data.hpp"
 #include "component_collection.hpp"
 #include "components/model.hpp"
@@ -20,7 +22,18 @@ int main() {
 	renderer.initialise();
 
 	// TOOD: remove
-	components->models.push_back(loadModel("teapot.gltf"));
+	Model teapot = loadModel("teapot.gltf");
+	teapot.transform = glm::translate(teapot.transform, glm::vec3(-1.0f, 0.0f, 0.0f));
+
+	// Model suzanne = loadModel("Suzanne.gltf");
+	// suzanne.transform = glm::translate(suzanne.transform, glm::vec3(1.0f, 0.0f, 0.0f));
+
+	Model spoon = loadModel("spoon/scene.gltf");
+	spoon.transform = glm::translate(spoon.transform, glm::vec3(3.0f, -1.0f, 0.0f));
+	spoon.transform = glm::scale(spoon.transform, glm::vec3(0.2f, 0.2f, 0.2f));
+
+	components->models.push_back(teapot);
+	components->models.push_back(spoon);
 
 	while (!applicationData->shouldClose) {
 		window.update();

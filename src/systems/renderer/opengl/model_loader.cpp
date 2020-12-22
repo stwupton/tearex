@@ -48,7 +48,13 @@ Model loadModel(const std::string &fileName) {
 
 	for (const tinygltf::Scene &scene : model.scenes) {
 		for (const int &nodeIndex : scene.nodes) {
-			const tinygltf::Node &node = model.nodes[nodeIndex];
+			// TODO: Temporary solution to render a spoon. We should be traversing 
+			// node and applying any transforms.
+			tinygltf::Node &node = model.nodes[nodeIndex];
+			while (node.mesh == -1 && node.children.size() > 0) {
+				node = model.nodes[node.children[0]];
+			}
+
 			const tinygltf::Mesh &mesh = model.meshes[node.mesh];
 			// TODO: Loop through all primitives
 			const tinygltf::Primitive &primitive = mesh.primitives[0];

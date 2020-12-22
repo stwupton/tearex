@@ -110,16 +110,18 @@ public:
 
 		glUseProgram(this->_basicProgramId);
 
-		float aspect = (float)width / height;
-		glm::mat4 projection = glm::perspective(45.0f, aspect, 1.0f, 150.0f);
+		const float aspect = (float)width / height;
+		const glm::mat4 projection = glm::perspective(45.0f, aspect, 1.0f, 150.0f);
 		glm::mat4 view = glm::mat4(1.0f);
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -8.0f));
-		glm::mat4 mvp = projection * view;
+		const glm::mat4 vp = projection * view;
 
-		const GLuint mvpUniformLocation = glGetUniformLocation(this->_basicProgramId, "mvp");
-		glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &mvp[0][0]);
 
 		for (const Model &model : this->_components->models) {
+			const glm::mat4 mvp = vp * model.transform;
+			const GLuint mvpUniformLocation = glGetUniformLocation(this->_basicProgramId, "mvp");
+			glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &mvp[0][0]);
+
 			glBindVertexArray(model.vertexArrayId);
 			glDrawElements(GL_TRIANGLES, model.vertexLength, model.indexType, nullptr);
 		}
