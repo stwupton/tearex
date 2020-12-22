@@ -5,7 +5,7 @@
 #include <application_data.hpp>
 
 class GlfwWindow {
-private:
+protected:
 	ApplicationData *_applicationData;
 	GLFWwindow *_window;
 
@@ -18,7 +18,7 @@ public:
 		glfwInit();
 
 		const char *windowName = this->_applicationData->name.c_str();
-		this->_window = glfwCreateWindow(800, 600, windowName, nullptr, nullptr);
+		this->_window = glfwCreateWindow(800, 600, windowName, NULL, NULL);
 
 		glfwMakeContextCurrent(this->_window);
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -37,5 +37,11 @@ public:
 
 		bool shouldClose = glfwWindowShouldClose(this->_window);
 		this->_applicationData->shouldClose = shouldClose;
+
+		glfwGetWindowSize(
+			this->_window, 
+			&this->_applicationData->windowWidth, 
+			&this->_applicationData->windowHeight
+		);
 	}
 };

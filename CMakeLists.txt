@@ -16,6 +16,7 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/src
 	$ENV{VULKAN_SDK}/Include
 	${CMAKE_SOURCE_DIR}/include
+	${CMAKE_SOURCE_DIR}/include/glm
 )
 
 add_executable(TEAREX ${CMAKE_SOURCE_DIR}/src/main.cpp)

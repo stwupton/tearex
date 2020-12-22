@@ -11,22 +11,7 @@
 #include "components/model.hpp"
 #include "util/debug.h"
 
-// TODO: Make sure that we are not copying the file contents when returning
-std::string load(const std::string &path) {
-	std::stringstream buffer;
-	std::ifstream stream(path);
-	buffer << stream.rdbuf();
-	return buffer.str();
-}
-
-std::string loadShader(const std::string &fileName) {
-	return load("./../assets/shaders/" + fileName);
-}
-
-// TODO: Cleanup
-Model loadModel(const std::string &fileName) {
-	Model modelComponent;
-
+tinygltf::Model loadViaTinyGltf(const std::string &fileName) {
 	tinygltf::TinyGLTF loader;
 	tinygltf::Model model;
 	std::string error;
@@ -47,8 +32,19 @@ Model loadModel(const std::string &fileName) {
 		if (!error.empty()) {
 			LOG(error.c_str())
 		}
-		throw std::runtime_error("Could not load model: " + fileName);
+		throw std::runtime_error("Could not loadFile model: " + fileName);
 	}
+
+	// TODO:: make sure we are not reallocating all the buffer data by return the
+	// model object here.
+	return model;
+}
+
+// TODO: Cleanup
+Model loadModel(const std::string &fileName) {
+	Model modelComponent;
+
+	tinygltf::Model model = loadViaTinyGltf(fileName);
 
 	for (const tinygltf::Scene &scene : model.scenes) {
 		for (const int &nodeIndex : scene.nodes) {
@@ -71,9 +67,8 @@ Model loadModel(const std::string &fileName) {
 				const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
 				const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
 
-				modelComponent.vertexLength = bufferView.byteLength / sizeof(GLuint);
+				modelComponent.vertexLength = bufferView.byteLength / sizeof(GLushort);
 
-				glGenBuffers(1, &modelComponent.bufferIds[0]);
 				glBindBuffer(bufferView.target, modelComponent.bufferIds[0]);
 				glBufferData(
 					bufferView.target,

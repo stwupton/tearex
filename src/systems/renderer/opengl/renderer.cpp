@@ -4,11 +4,13 @@
 #include <string>
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "application_data.hpp"
 #include "component_collection.hpp"
 #include "util/debug.h"
-#include "loader.cpp"
+#include "shader_loader.cpp"
 
 static void handleGLError(
 	GLenum source,
@@ -48,10 +50,16 @@ public:
 			return;
 		}
 
-		glViewport(0, 0, 800, 600);
-		glClearColor(0.f, 0.f, 1.f, 1.0f);
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(handleGLError, nullptr);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glViewport(0, 0, 800, 600);
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: remove
 
 		// Create shaders
 		this->_basicProgramId = glCreateProgram();
@@ -99,9 +107,20 @@ public:
 
 		glUseProgram(this->_basicProgramId);
 
+		float aspect = (float)
+			this->_applicationData->windowWidth / 
+			this->_applicationData->windowHeight;
+		glm::mat4 projection = glm::perspective(45.0f, aspect, 1.0f, 150.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -8.0f));
+		glm::mat4 mvp = projection * view;
+
+		const GLuint mvpUniformLocation = glGetUniformLocation(this->_basicProgramId, "mvp");
+		glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &mvp[0][0]);
+
 		for (const Model &model : this->_components->models) {
 			glBindVertexArray(model.vertexArrayId);
-			glDrawElements(GL_TRIANGLES, model.vertexLength, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, model.vertexLength, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
 };
