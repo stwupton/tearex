@@ -10,7 +10,8 @@
 #include "application_data.hpp"
 #include "component_collection.hpp"
 #include "util/debug.h"
-#include "shader_loader.cpp"
+#include "loaders/shader.cpp"
+#include "loaders/model_info.hpp"
 
 static void handleGLError(
 	GLenum source,
@@ -25,24 +26,27 @@ static void handleGLError(
 }
 
 class OpenGLRenderer {
-private:
-	ApplicationData *_applicationData;
-	GLuint _basicProgramId;
-	ComponentCollection *_components;
+protected:
+	ApplicationData *applicationData;
+	GLuint basicProgramId;
+	ComponentCollection *components;
+	ModelInfo *loadedModels;
 
 public:
 	OpenGLRenderer(
 		ApplicationData *applicationData, 
-		ComponentCollection *components
+		ComponentCollection *components,
+		ModelInfo* loadedModels
 	) : 
-		_applicationData(applicationData), 
-		_components(components) {}
+		applicationData(applicationData), 
+		components(components),
+		loadedModels(loadedModels) {}
 
 	void initialise() {
 		// Init glew 
 		const GLenum glewInitResult = glewInit();
 		if (glewInitResult != GLEW_OK) {
-			this->_applicationData->shouldClose = true;
+			this->applicationData->shouldClose = true;
 			throw std::runtime_error(
 				"Failed to initialise GLEW. Error code: " + 
 				std::to_string(glewInitResult)
@@ -61,7 +65,7 @@ public:
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: remove
 
 		// Create shaders
-		this->_basicProgramId = glCreateProgram();
+		this->basicProgramId = glCreateProgram();
 
 		// Vertex shader
 		std::string vertexShader = loadShader("basic.vert");
@@ -80,26 +84,21 @@ public:
 		glCompileShader(fragmentShaderId);
 
 		// Attach program
-		glAttachShader(this->_basicProgramId, vertexShaderId);
-		glAttachShader(this->_basicProgramId, fragmentShaderId);
-		glLinkProgram(this->_basicProgramId);
+		glAttachShader(this->basicProgramId, vertexShaderId);
+		glAttachShader(this->basicProgramId, fragmentShaderId);
+		glLinkProgram(this->basicProgramId);
 
 		glDeleteShader(vertexShaderId);
 		glDeleteShader(fragmentShaderId);
 	}
 
 	void terminate() const {
-		glDeleteProgram(this->_basicProgramId);
-		// TODO: Add an unload to the model loader when we have one
-		for (const Model &model : this->_components->models) {
-			glDeleteVertexArrays(1, &model.vertexArrayId);
-			glDeleteBuffers(sizeof(model.bufferIds) / sizeof(uint32_t), model.bufferIds);
-		}
+		glDeleteProgram(this->basicProgramId);
 	}
 
 	void update() const {
-		const int width = this->_applicationData->windowWidth;
-		const int height = this->_applicationData->windowHeight;
+		const int width = this->applicationData->windowWidth;
+		const int height = this->applicationData->windowHeight;
 
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -108,22 +107,31 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		glUseProgram(this->_basicProgramId);
+		glUseProgram(this->basicProgramId);
 
 		const float aspect = (float)width / height;
 		const glm::mat4 projection = glm::perspective(45.0f, aspect, 1.0f, 150.0f);
+		// const glm::mat4 projection = glm::ortho(
+		// 	-((float)width / height),
+		// 	(float)width / height,
+		// 	-((float)height / width),
+		// 	(float)height / width,
+		// 	-1.0f,
+		// 	150.0f
+		// );
 		glm::mat4 view = glm::mat4(1.0f);
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -8.0f));
 		const glm::mat4 vp = projection * view;
 
+		for (const StaticModel &staticModel : this->components->staticModels) {
+			const ModelInfo modelInfo = loadedModels[staticModel.modelId];
 
-		for (const Model &model : this->_components->models) {
-			const glm::mat4 mvp = vp * model.transform;
-			const GLuint mvpUniformLocation = glGetUniformLocation(this->_basicProgramId, "mvp");
+			const glm::mat4 mvp = vp * modelInfo.transform * staticModel.transform;
+			const GLuint mvpUniformLocation = glGetUniformLocation(this->basicProgramId, "mvp");
 			glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &mvp[0][0]);
 
-			glBindVertexArray(model.vertexArrayId);
-			glDrawElements(GL_TRIANGLES, model.vertexLength, model.indexType, nullptr);
+			glBindVertexArray(modelInfo.vertexArrayId);
+			glDrawElements(GL_TRIANGLES, modelInfo.indexLength, modelInfo.indexType, nullptr);
 		}
 	}
 };

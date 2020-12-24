@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "file_loader.cpp"
+#include "file.cpp"
 
 std::string loadShader(const std::string &fileName) {
 	return loadFile("./../assets/shaders/" + fileName);

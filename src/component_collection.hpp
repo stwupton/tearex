@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "components/model.hpp"
+#include "components/static_model.hpp"
 
 struct ComponentCollection {
-	std::vector<Model> models;
+	std::vector<StaticModel> staticModels;
 };
