@@ -1,11 +1,17 @@
 #pragma once
 
+#include <algorithm>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <tinygltf/tiny_gltf.h>
 
 #include "model_info.hpp"
@@ -16,11 +22,102 @@ protected:
 	uint8_t head;
 
 public:
-	// TODO: Will we be loading more that 255 models?
+	// TODO: Will we be loading more that 256 models?
 	ModelInfo loaded[256];
 
 protected:
-	tinygltf::Model loadTinyGltfModel(const std::string &fileName) {
+	void applyNodeTransformations(glm::mat4 &transform, const tinygltf::Node &node) const {
+		if (node.matrix.size() > 0) {
+			assert(node.matrix.size() == 16);
+			glm::mat4 matrix = glm::make_mat4(node.matrix.data());
+			transform *= matrix;
+		} else {
+			if (node.translation.size() > 0) {
+				assert(node.translation.size() == 3);
+				glm::vec3 translation = glm::make_vec3(node.translation.data());
+				transform = glm::translate(transform, translation);
+			}
+
+			if (node.rotation.size() > 0) {
+				assert(node.rotation.size() == 4);
+				glm::quat rotation = glm::make_quat(node.rotation.data());
+				transform *= glm::mat4_cast(rotation);
+			}
+
+			if (node.scale.size() > 0) {
+				assert(node.scale.size() == 3);
+				glm::vec3 scale = glm::make_vec3(node.scale.data());
+				transform = glm::scale(transform, scale);
+			}
+		}
+	}
+
+	void createAttributeBuffers(
+		ModelInfo &modelInfo, 
+		const tinygltf::Model &gltfData, 
+		const std::map<std::string, int> &attributes
+	) const {
+		glGenBuffers(
+			sizeof(modelInfo.atrributeBufferIds) / sizeof(GLuint), 
+			modelInfo.atrributeBufferIds
+		);
+
+		int8_t bufferIdIndex = 0;
+		for (const std::pair<const std::string, int> &attribute : attributes) {
+			const GLuint bufferId = modelInfo.atrributeBufferIds[bufferIdIndex];
+
+			const tinygltf::Accessor &accessor = gltfData.accessors[attribute.second];
+			const tinygltf::BufferView &bufferView = gltfData.bufferViews[accessor.bufferView];
+			const tinygltf::Buffer &buffer = gltfData.buffers[bufferView.buffer];
+
+			glBindBuffer(bufferView.target, bufferId);
+			glBufferData(
+				bufferView.target,
+				bufferView.byteLength,
+				&buffer.data.at(0) + bufferView.byteOffset,
+				GL_STATIC_DRAW
+			);
+
+			// TODO: Come up with a way to make sure that all attributes are in the 
+			// same location.
+			uint8_t typeSize = this->resolveTinyGltfTypeSize(accessor.type);
+			glVertexAttribPointer(
+				bufferIdIndex, 
+				typeSize, 
+				accessor.componentType, 
+				GL_FALSE, 
+				sizeof(float) * typeSize, 
+				0
+			);
+			glEnableVertexAttribArray(bufferIdIndex);
+
+			bufferIdIndex++;
+		}
+	}
+
+	void createIndexBuffer(
+		ModelInfo &modelInfo, 
+		const tinygltf::Model &gltfData, 
+		const int &accessorIndex
+	) const {
+		const tinygltf::Accessor &accessor = gltfData.accessors[accessorIndex];
+		const tinygltf::BufferView &bufferView = gltfData.bufferViews[accessor.bufferView];
+		const tinygltf::Buffer &buffer = gltfData.buffers[bufferView.buffer];
+
+		modelInfo.indexType = accessor.componentType;
+		modelInfo.indexLength = accessor.count;
+
+		glGenBuffers(1, &modelInfo.indexBufferId);
+		glBindBuffer(bufferView.target, modelInfo.indexBufferId);
+		glBufferData(
+			bufferView.target,
+			bufferView.byteLength,
+			&buffer.data.at(0) + bufferView.byteOffset,
+			GL_STATIC_DRAW
+		);
+	}
+
+	tinygltf::Model loadModel(const std::string &fileName) const {
 		tinygltf::TinyGLTF loader;
 		tinygltf::Model model;
 		std::string error;
@@ -45,104 +142,103 @@ protected:
 		}
 
 		// TODO:: make sure we are not reallocating all the buffer data by return the
-		// model object here.
+		// gltfData object here.
 		return model;
 	}
 
-public:
-	// TODO: Cleanup
-	uint8_t load(const std::string &fileName) {
-		ModelInfo &modelInfo = this->loaded[this->head];
+	// TODO: We currently stop when we reach the first node that contains a mesh,
+	// do we need to support multiple meshes?
+	bool parseNode(
+		ModelInfo &modelInfo,
+		const tinygltf::Model &gltfData,
+		const std::vector<int> &indices,
+		glm::mat4 transform
+	) const {
+		for (const int &i : indices) {
+			const tinygltf::Node &node = gltfData.nodes[i];
+			
+			glm::mat4 currentTransform = transform; 
+			this->applyNodeTransformations(currentTransform, node);
 
-		tinygltf::Model model = loadTinyGltfModel(fileName);
+			if (node.mesh > -1) {
+				this->setModelInfo(modelInfo, gltfData, node.mesh, currentTransform);
+				modelInfo.transform = currentTransform;
+				return true;
+			}
 
-		for (const tinygltf::Scene &scene : model.scenes) {
-			for (const int &nodeIndex : scene.nodes) {
-				// TODO: Temporary solution to render a spoon. We should be traversing 
-				// node and applying any transforms.
-				tinygltf::Node &node = model.nodes[nodeIndex];
-				while (node.mesh == -1 && node.children.size() > 0) {
-					node = model.nodes[node.children[0]];
-				}
-
-				const tinygltf::Mesh &mesh = model.meshes[node.mesh];
-				// TODO: Loop through all primitives
-				const tinygltf::Primitive &primitive = mesh.primitives[0];
-
-				glGenVertexArrays(1, &modelInfo.vertexArrayId);
-				glBindVertexArray(modelInfo.vertexArrayId);
-
-				// Generate index buffer
-				{
-					const tinygltf::Accessor &accessor = model.accessors[primitive.indices];
-					const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
-					const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
-
-					modelInfo.indexType = accessor.componentType;
-					modelInfo.indexLength = accessor.count;
-
-					glGenBuffers(1, &modelInfo.indexBufferId);
-					glBindBuffer(bufferView.target, modelInfo.indexBufferId);
-					glBufferData(
-						bufferView.target,
-						bufferView.byteLength,
-						&buffer.data.at(0) + bufferView.byteOffset,
-						GL_STATIC_DRAW
-					);
-				}
-
-				// Generate vertex buffers
-				glGenBuffers(
-					sizeof(modelInfo.atrributeBufferIds) / sizeof(uint32_t), 
-					modelInfo.atrributeBufferIds
+			if (node.children.size() > 0) {
+				const bool parsed = this->parseNode(
+					modelInfo, 
+					gltfData, 
+					node.children, 
+					currentTransform
 				);
-
-				int8_t bufferIdIndex = 0;
-				for (const std::pair<const std::string, int> &attribute : primitive.attributes) {
-					const GLuint bufferId = modelInfo.atrributeBufferIds[bufferIdIndex];
-
-					const tinygltf::Accessor &accessor = model.accessors[attribute.second];
-					const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
-					const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
-
-					// TODO: Handle all types (scalar, vector & matrix)
-					uint8_t typeSize;
-					switch (accessor.type) {
-						case TINYGLTF_TYPE_VEC3:
-							typeSize = 3;
-							break;
-					}
-
-					glBindBuffer(bufferView.target, bufferId);
-					glBufferData(
-						bufferView.target,
-						bufferView.byteLength,
-						&buffer.data.at(0) + bufferView.byteOffset,
-						GL_STATIC_DRAW
-					);
-
-					// TODO: Come up with a way to make sure that all attributes are in the 
-					// same location.
-					const GLuint vertexAttribId = bufferIdIndex;
-					glVertexAttribPointer(
-						vertexAttribId, 
-						typeSize, 
-						accessor.componentType, 
-						GL_FALSE, 
-						sizeof(float) * typeSize, 
-						0
-					);
-					glEnableVertexAttribArray(vertexAttribId);
-
-					bufferIdIndex++;
+				if (parsed) {
+					return true;
+				} else {
+					continue;
 				}
+			} else {
+				return false;
 			}
 		}
+	}
 
-		const uint8_t modelId = head;
-		head++;
+	int resolveTinyGltfTypeSize(const int &type) const {
+		switch (type) {
+			case TINYGLTF_TYPE_SCALAR:
+				return 1;
+			case TINYGLTF_TYPE_VEC2:
+			case TINYGLTF_TYPE_VEC3:
+			case TINYGLTF_TYPE_VEC4:
+				return type;
+			case TINYGLTF_TYPE_MAT2:
+			case TINYGLTF_TYPE_MAT3:
+			case TINYGLTF_TYPE_MAT4:
+				return pow(type - 32, 2);
+			default:
+				return -1;
+		}
+	}
 
-		return modelId;
+	void setModelInfo(
+		ModelInfo &modelInfo, 
+		const tinygltf::Model &gltfData, 
+		const int &meshIndex, 
+		const glm::mat4 &transform
+	) const {
+		const tinygltf::Mesh &mesh = gltfData.meshes[meshIndex];
+		// TODO: Check if we need to iterate over primitives!
+		const tinygltf::Primitive &primitive = mesh.primitives[0];
+
+		glGenVertexArrays(1, &modelInfo.vertexArrayId);
+		glBindVertexArray(modelInfo.vertexArrayId);
+
+		// TODO: Handle interleaved vertex attributes
+		this->createIndexBuffer(modelInfo, gltfData, primitive.indices);
+		this->createAttributeBuffers(modelInfo, gltfData, primitive.attributes);
+	}
+
+public:
+	uint8_t load(const std::string &fileName) {
+		ModelInfo &modelInfo = this->loaded[this->head];
+		tinygltf::Model gltfData = loadModel(fileName);
+
+		// TODO: Should we handle mutliple scenes?
+		tinygltf::Scene &scene = gltfData.scenes[0];
+		const bool parsed = this->parseNode(
+			modelInfo, 
+			gltfData, 
+			scene.nodes, 
+			glm::mat4(1.0f)
+		);
+		if (!parsed) {
+			LOG("Model named: " << fileName << ", has no associated mesh.")
+			return -1;
+		}
+
+		// TODO: Should be finding the first empty index here.
+		return head++;
 	}
 
 	void unload(const std::string &name) {

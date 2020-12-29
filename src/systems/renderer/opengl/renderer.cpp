@@ -126,7 +126,7 @@ public:
 		for (const StaticModel &staticModel : this->components->staticModels) {
 			const ModelInfo modelInfo = loadedModels[staticModel.modelId];
 
-			const glm::mat4 mvp = vp * modelInfo.transform * staticModel.transform;
+			const glm::mat4 mvp = vp * staticModel.transform * modelInfo.transform;
 			const GLuint mvpUniformLocation = glGetUniformLocation(this->basicProgramId, "mvp");
 			glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &mvp[0][0]);
 

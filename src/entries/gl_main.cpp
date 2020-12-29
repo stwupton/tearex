@@ -26,16 +26,18 @@ int main() {
 	// TOOD: remove
 	uint8_t teapotModelId = modelLoader.load("teapot.gltf");
 	uint8_t spoonModelId = modelLoader.load("spoon/scene.gltf");
-	// uint8_t suzanneModelId = modelLoader.load("Suzanne.gltf");
+	uint8_t suzanneModelId = modelLoader.load("Suzanne.gltf");
 
 	StaticModel teapot { teapotModelId };
 	teapot.transform = glm::translate(teapot.transform, glm::vec3(-1.0f, 0.0f, 0.0f));
+	teapot.transform = glm::scale(teapot.transform, glm::vec3(0.1f, 0.1f, 0.1f));
 
-	// StaticModel suzanne { suzanneModelId };
-	// suzanne.transform = glm::translate(suzanne.transform, glm::vec3(1.0f, 0.0f, 0.0f));
+	StaticModel suzanne { suzanneModelId };
+	suzanne.transform = glm::translate(suzanne.transform, glm::vec3(1.0f, 0.0f, 0.0f));
 
 	StaticModel spoon { spoonModelId };
-	spoon.transform = glm::translate(spoon.transform, glm::vec3(3.0f, -1.0f, 0.0f));
+	spoon.transform = glm::translate(spoon.transform, glm::vec3(3.0f, 0.0f, 0.0f));
+	spoon.transform = glm::rotate(spoon.transform, glm::radians(90.0f), glm::vec3(1, 0, 0));
 	spoon.transform = glm::scale(spoon.transform, glm::vec3(0.2f, 0.2f, 0.2f));
 
 	components->staticModels.push_back(teapot);
