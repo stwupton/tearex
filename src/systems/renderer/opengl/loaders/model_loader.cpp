@@ -178,10 +178,10 @@ protected:
 				} else {
 					continue;
 				}
-			} else {
-				return false;
 			}
 		}
+
+		return false;
 	}
 
 	int resolveTinyGltfTypeSize(const int &type) const {

@@ -119,9 +119,7 @@ public:
 		// 	-1.0f,
 		// 	150.0f
 		// );
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -8.0f));
-		const glm::mat4 vp = projection * view;
+		const glm::mat4 vp = projection * this->components->camera.transform;
 
 		for (const StaticModel &staticModel : this->components->staticModels) {
 			const ModelInfo modelInfo = loadedModels[staticModel.modelId];
