@@ -19,7 +19,7 @@
 
 class ModelLoader {
 protected:
-	uint8_t head;
+	uint8_t head = 0;
 
 public:
 	// TODO: Will we be loading more that 256 models?
@@ -117,17 +117,59 @@ protected:
 		);
 	}
 
+	void createMaterial(
+		ModelInfo &modelInfo, 
+		const tinygltf::Model &gltfData, 
+		const int &materialIndex
+	) const {
+		const tinygltf::Material &material = gltfData.materials[materialIndex];
+		const tinygltf::PbrMetallicRoughness &pbr = material.pbrMetallicRoughness;
+
+		// TODO: Handle other textures
+		if (pbr.baseColorTexture.index == -1) {
+			return; 
+		}
+
+		const tinygltf::Texture &texture = gltfData.textures[pbr.baseColorTexture.index];
+		const tinygltf::Image &image = gltfData.images[texture.source];
+
+		glGenTextures(1, &modelInfo.textureId);
+		glBindTexture(GL_TEXTURE_2D, modelInfo.textureId);
+		glTexImage2D(
+			GL_TEXTURE_2D, 
+			0, 
+			GL_RGBA, 
+			image.width, 
+			image.height, 
+			0, 
+			GL_RGBA, 
+			image.pixel_type, 
+			image.image.data()
+		);
+
+		// Texture settings
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		GLfloat borderColor[] = { 1.0f, 0.0f, 1.0f, 1.0f };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	}
+
 	tinygltf::Model loadModel(const std::string &fileName) const {
 		tinygltf::TinyGLTF loader;
 		tinygltf::Model model;
 		std::string error;
 		std::string warning;
 
+		const std::string filePath = std::string(ASSET_PATH) + "models/" + fileName;
 		const bool success = loader.LoadASCIIFromFile(
 			&model, 
 			&error, 
 			&warning,
-			"./../assets/models/" + fileName
+			filePath.c_str()
 		);
 
 		if (!warning.empty()) {
@@ -217,6 +259,7 @@ protected:
 		// TODO: Handle interleaved vertex attributes
 		this->createIndexBuffer(modelInfo, gltfData, primitive.indices);
 		this->createAttributeBuffers(modelInfo, gltfData, primitive.attributes);
+		this->createMaterial(modelInfo, gltfData, primitive.material);
 	}
 
 public:

@@ -5,5 +5,6 @@
 #include "file.cpp"
 
 std::string loadShader(const std::string &fileName) {
-	return loadFile("./../assets/shaders/" + fileName);
+	const std::string filePath = std::string(ASSET_PATH) + "shaders/" + fileName;
+	return loadFile(filePath);
 }

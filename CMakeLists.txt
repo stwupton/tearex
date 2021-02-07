@@ -43,4 +43,10 @@ if(WINDOW_MANAGER STREQUAL "GLFW3")
 	find_library(WINDOW_MANAGER_LIB NAMES glfw3 glfw)
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_compile_definitions(ASSET_PATH="./../assets/")
+else()
+	add_compile_definitions(ASSET_PATH="./assets/")
+endif()
+
 target_link_libraries(TEAREX ${RENDERER_LIB} ${WINDOW_MANAGER_LIB})

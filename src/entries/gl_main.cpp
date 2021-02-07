@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "application_data.hpp"
 #include "component_collection.hpp"
@@ -33,7 +34,7 @@ int main() {
 
 		// StaticModel teapot { teapotModelId };
 		// teapot.transform = glm::translate(teapot.transform, glm::vec3(-1.0f, 0.0f, 0.0f));
-		// teapot.transform = glm::scale(teapot.transform, glm::vec3(0.1f, 0.1f, 0.1f));
+		// teapot.transform = glm::scale(teapot.transform, glm::vec3(0.05f, 0.05f, 0.05f));
 
 		StaticModel suzanne { suzanneModelId };
 
@@ -90,6 +91,7 @@ int main() {
 	modelLoader.unloadAll();
 
 	delete components;
+	delete inputData;
 	delete applicationData;
 
 	return EXIT_SUCCESS;

@@ -60,9 +60,11 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: remove
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: remove
+		glClearColor(0.5f, 0.8f, 1.0f, 1.0f);
 
 		// Create shaders
 		this->basicProgramId = glCreateProgram();
@@ -100,6 +102,12 @@ public:
 		const int width = this->applicationData->windowWidth;
 		const int height = this->applicationData->windowHeight;
 
+		// If a tree falls in a forest and no one is around to hear it, does it 
+		// make a sound?
+		if (width == 0 || height == 0) {
+			return;
+		}
+
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -111,14 +119,6 @@ public:
 
 		const float aspect = (float)width / height;
 		const glm::mat4 projection = glm::perspective(45.0f, aspect, 1.0f, 150.0f);
-		// const glm::mat4 projection = glm::ortho(
-		// 	-((float)width / height),
-		// 	(float)width / height,
-		// 	-((float)height / width),
-		// 	(float)height / width,
-		// 	-1.0f,
-		// 	150.0f
-		// );
 		const glm::mat4 vp = projection * this->components->camera.transform;
 
 		for (const StaticModel &staticModel : this->components->staticModels) {
@@ -127,6 +127,9 @@ public:
 			const glm::mat4 mvp = vp * staticModel.transform * modelInfo.transform;
 			const GLuint mvpUniformLocation = glGetUniformLocation(this->basicProgramId, "mvp");
 			glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &mvp[0][0]);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, modelInfo.textureId);
 
 			glBindVertexArray(modelInfo.vertexArrayId);
 			glDrawElements(GL_TRIANGLES, modelInfo.indexLength, modelInfo.indexType, nullptr);
