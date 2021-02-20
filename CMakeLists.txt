@@ -35,12 +35,14 @@ elseif(RENDERER STREQUAL "OPEN_GL")
 	)
 	find_library(GLEW_LIB NAMES glew glew32s GLEW)
 	find_package(OpenGL REQUIRED)
-	set(RENDERER_LIB ${GLEW_LIB} ${OPENGL_gl_LIBRARY})
+	message(STATUS ${OPENGL_LIBRARIES})
+	set(RENDERER_LIB ${OPENGL_LIBRARIES} ${GLEW_LIB})
 endif()
 
 if(WINDOW_MANAGER STREQUAL "GLFW3")
 	add_compile_definitions(GLFW_INCLUDE_NONE)
 	find_library(WINDOW_MANAGER_LIB NAMES glfw3 glfw)
 endif()
+
 
 target_link_libraries(TEAREX ${RENDERER_LIB} ${WINDOW_MANAGER_LIB})
