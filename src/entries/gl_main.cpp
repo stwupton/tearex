@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "application_data.hpp"
 #include "component_collection.hpp"
@@ -25,7 +26,7 @@ int main() {
 	window.initialise();
 	renderer.initialise();
 
-	// TOOD: remove
+	// TODO: remove
 	{
 		// uint8_t teapotModelId = modelLoader.load("teapot.gltf");
 		// uint8_t spoonModelId = modelLoader.load("spoon/scene.gltf");
@@ -33,7 +34,7 @@ int main() {
 
 		// StaticModel teapot { teapotModelId };
 		// teapot.transform = glm::translate(teapot.transform, glm::vec3(-1.0f, 0.0f, 0.0f));
-		// teapot.transform = glm::scale(teapot.transform, glm::vec3(0.1f, 0.1f, 0.1f));
+		// teapot.transform = glm::scale(teapot.transform, glm::vec3(0.05f, 0.05f, 0.05f));
 
 		StaticModel suzanne { suzanneModelId };
 
@@ -46,8 +47,11 @@ int main() {
 		components->staticModels.push_back(suzanne);
 		// components->staticModels.push_back(spoon);
 
+		components->directionalLight.direction = glm::vec3(0, 1, 0);
+		components->directionalLight.colour = glm::vec3(1);
+
 		Camera &camera = components->camera;
-		camera.transform = glm::translate(camera.transform, glm::vec3(0.0, 0.0f, -5.0f));
+		camera.transform = glm::translate(camera.transform, glm::vec3(0.0f, 0.0f, -5.0f));
 	}
 
 	// TODO: Remove
@@ -90,6 +94,7 @@ int main() {
 	modelLoader.unloadAll();
 
 	delete components;
+	delete inputData;
 	delete applicationData;
 
 	return EXIT_SUCCESS;

@@ -60,9 +60,11 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: remove
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: remove
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// Create shaders
 		this->basicProgramId = glCreateProgram();
@@ -100,6 +102,12 @@ public:
 		const int width = this->applicationData->windowWidth;
 		const int height = this->applicationData->windowHeight;
 
+		// If a tree falls in a forest and no one is around to hear it, does it 
+		// make a sound?
+		if (width == 0 || height == 0) {
+			return;
+		}
+
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -111,22 +119,25 @@ public:
 
 		const float aspect = (float)width / height;
 		const glm::mat4 projection = glm::perspective(45.0f, aspect, 1.0f, 150.0f);
-		// const glm::mat4 projection = glm::ortho(
-		// 	-((float)width / height),
-		// 	(float)width / height,
-		// 	-((float)height / width),
-		// 	(float)height / width,
-		// 	-1.0f,
-		// 	150.0f
-		// );
 		const glm::mat4 vp = projection * this->components->camera.transform;
+		const GLuint vpUniformLocation = glGetUniformLocation(this->basicProgramId, "vp");
+		glUniformMatrix4fv(vpUniformLocation, 1, GL_FALSE, &vp[0][0]);
+
+		const GLuint lightDirectionLocation = glGetUniformLocation(this->basicProgramId, "lightDirection");
+		glUniform3fv(lightDirectionLocation, 1, &components->directionalLight.direction[0]);
+
+		const GLuint lightColourLocation = glGetUniformLocation(this->basicProgramId, "lightColour");
+		glUniform3fv(lightColourLocation, 1, &components->directionalLight.colour[0]);
 
 		for (const StaticModel &staticModel : this->components->staticModels) {
 			const ModelInfo modelInfo = loadedModels[staticModel.modelId];
 
-			const glm::mat4 mvp = vp * staticModel.transform * modelInfo.transform;
-			const GLuint mvpUniformLocation = glGetUniformLocation(this->basicProgramId, "mvp");
-			glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &mvp[0][0]);
+			const glm::mat4 model = staticModel.transform * modelInfo.transform;
+			const GLuint modelUniformLocation = glGetUniformLocation(this->basicProgramId, "model");
+			glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, &model[0][0]);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, modelInfo.textureId);
 
 			glBindVertexArray(modelInfo.vertexArrayId);
 			glDrawElements(GL_TRIANGLES, modelInfo.indexLength, modelInfo.indexType, nullptr);

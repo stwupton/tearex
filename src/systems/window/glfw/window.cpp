@@ -19,7 +19,11 @@ protected:
 		this->inputData->previousMouseX = this->inputData->mouseX;
 		this->inputData->previousMouseY = this->inputData->mouseY;
 
-		glfwGetCursorPos(this->window, &this->inputData->mouseX, &this->inputData->mouseY);
+		glfwGetCursorPos(
+			this->window, 
+			&this->inputData->mouseX, 
+			&this->inputData->mouseY
+		);
 	}
 
 public:
