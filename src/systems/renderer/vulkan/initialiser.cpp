@@ -69,10 +69,7 @@ private:
 		return createInfo;
 	}
 
-	void _createDebugMessenger(
-		VkInstance instance, 
-		VkDebugUtilsMessengerEXT *debugMessenger
-	) {
+	void _createDebugMessenger(VkInstance instance, VkDebugUtilsMessengerEXT *debugMessenger) {
 		VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo = 
 			this->_createDebugMessengerCreateInfo();
 
@@ -218,10 +215,7 @@ private:
 #endif
 	}
 
-	void _pickPhysicalDevice(
-		VkInstance instance, 
-		VkPhysicalDevice *physicalDevice
-	) {
+	void _pickPhysicalDevice(VkInstance instance, VkPhysicalDevice *physicalDevice) {
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 

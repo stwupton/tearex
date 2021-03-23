@@ -28,26 +28,26 @@ int main() {
 
 	// TODO: remove
 	{
-		// uint8_t teapotModelId = modelLoader.load("teapot.gltf");
+		uint8_t teapotModelId = modelLoader.load("teapot.gltf");
 		// uint8_t spoonModelId = modelLoader.load("spoon/scene.gltf");
-		uint8_t suzanneModelId = modelLoader.load("Suzanne.gltf");
+		// uint8_t suzanneModelId = modelLoader.load("Suzanne.gltf");
 
-		// StaticModel teapot { teapotModelId };
-		// teapot.transform = glm::translate(teapot.transform, glm::vec3(-1.0f, 0.0f, 0.0f));
-		// teapot.transform = glm::scale(teapot.transform, glm::vec3(0.05f, 0.05f, 0.05f));
+		StaticModel teapot { teapotModelId };
+		teapot.transform = glm::translate(teapot.transform, glm::vec3(0.0f, 0.0f, 0.0f));
+		teapot.transform = glm::scale(teapot.transform, glm::vec3(0.05f, 0.05f, 0.05f));
 
-		StaticModel suzanne { suzanneModelId };
+		// StaticModel suzanne { suzanneModelId };
 
 		// StaticModel spoon { spoonModelId };
 		// spoon.transform = glm::translate(spoon.transform, glm::vec3(3.0f, 0.0f, 0.0f));
 		// spoon.transform = glm::rotate(spoon.transform, glm::radians(90.0f), glm::vec3(1, 0, 0));
 		// spoon.transform = glm::scale(spoon.transform, glm::vec3(0.2f, 0.2f, 0.2f));
 
-		// components->staticModels.push_back(teapot);
-		components->staticModels.push_back(suzanne);
+		components->staticModels.push_back(teapot);
+		// components->staticModels.push_back(suzanne);
 		// components->staticModels.push_back(spoon);
 
-		components->directionalLight.direction = glm::vec3(0, 1, 0);
+		components->directionalLight.direction = glm::vec3(-1, 0, 0);
 		components->directionalLight.colour = glm::vec3(1);
 
 		Camera &camera = components->camera;
@@ -55,14 +55,14 @@ int main() {
 	}
 
 	// TODO: Remove
-	glm::vec2 rotation;
-
 	while (!applicationData->shouldClose) {
 		window.update();
 
 		// TODO: Remove. Basic logic for moving object in view
 		{
-			StaticModel &realSuzanne = components->staticModels[0];
+			static glm::vec2 rotation;
+
+			StaticModel &model = components->staticModels[0];
 			const float sensitivity = 0.4f;
 			if (inputData->primaryMouseDown) {
 				rotation = glm::vec2(
@@ -80,9 +80,7 @@ int main() {
 					glm::length(rotation), 
 					glm::vec3(rotationAxis.x, rotationAxis.y, 0.0f)
 				);
-				realSuzanne.transform = rotationMatrix * realSuzanne.transform;
-			} else {
-				rotation = glm::vec2();
+				model.transform = rotationMatrix * model.transform;
 			}
 		}
 
@@ -92,10 +90,6 @@ int main() {
 	window.terminate();
 	renderer.terminate();
 	modelLoader.unloadAll();
-
-	delete components;
-	delete inputData;
-	delete applicationData;
 
 	return EXIT_SUCCESS;
 }

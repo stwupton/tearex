@@ -183,7 +183,7 @@ protected:
 			throw std::runtime_error("Could not loadFile model: " + fileName);
 		}
 
-		// TODO:: make sure we are not reallocating all the buffer data by return the
+		// TODO: make sure we are not reallocating all the buffer data by return the
 		// gltfData object here.
 		return model;
 	}
