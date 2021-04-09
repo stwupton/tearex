@@ -10,18 +10,11 @@ buildType:
       long: Optimize the resulting binaries.
       buildType: Release
 
-renderer:
-  default: VULKAN
+platform:
+  default: windows
   choices:
-    openGL:
-      short: OpenGL
-      long: Use OpenGL.
+    windows:
+      short: Windows Platform
+      long: Build for the Windows platform.
       settings: 
-        RENDERER: OPEN_GL
-        WINDOW_MANAGER: GLFW3
-    vulkan: 
-      short: Vulkan
-      long: Use Vulkan.
-      settings:
-        RENDERER: VULKAN
-        WINDOW_MANAGER: GLFW3
+        PLATFORM: WIN32

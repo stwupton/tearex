@@ -19,12 +19,10 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/include/glm
 )
 
-add_executable(TEAREX ${CMAKE_SOURCE_DIR}/src/main.cpp)
-add_compile_definitions(${RENDERER} ${WINDOW_MANAGER})
+add_compile_definitions(${PLATFORM})
 
-if(RENDERER STREQUAL "VULKAN")
-	find_library(RENDERER_LIB NAMES vulkan-1 vulkan)
-elseif(RENDERER STREQUAL "OPEN_GL")
+if(PLATFORM STREQUAL "WIN32")
+	add_executable(TEAREX WIN32 ${CMAKE_SOURCE_DIR}/src/main.cpp)
 	add_compile_definitions(
 		GLEW_STATIC 
 
@@ -37,11 +35,8 @@ elseif(RENDERER STREQUAL "OPEN_GL")
 	find_package(OpenGL REQUIRED)
 	message(STATUS ${OPENGL_LIBRARIES})
 	set(RENDERER_LIB ${GLEW_LIB} ${OPENGL_LIBRARIES})
-endif()
 
-if(WINDOW_MANAGER STREQUAL "GLFW3")
-	add_compile_definitions(GLFW_INCLUDE_NONE)
-	find_library(WINDOW_MANAGER_LIB NAMES glfw3 glfw)
+	find_library(WINDOW_MANAGER_LIB NAMES user32)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

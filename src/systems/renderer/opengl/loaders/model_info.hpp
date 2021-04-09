@@ -6,7 +6,7 @@
 struct ModelInfo {
 	// TODO: Hard code a more useful array length for the buffer ids. Should it 
 	// even be hardcoded?
-	GLuint atrributeBufferIds[4]; 
+	GLuint attributeBufferIds[4]; 
 	GLuint indexBufferId; 
 	GLuint indexLength;
 	GLsizei indexType;

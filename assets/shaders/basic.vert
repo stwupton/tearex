@@ -14,5 +14,5 @@ void main() {
 	gl_Position = vp * model * vec4(_position, 1.0);
 	texCoord0 = _texCoord0;
 
-	normal = normalize((model * vec4(_normal, 0.0)).xyz);
+	normal = mat3(transpose(inverse(model))) * _normal;
 }

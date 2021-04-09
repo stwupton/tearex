@@ -58,13 +58,13 @@ protected:
 		const std::map<std::string, int> &attributes
 	) const {
 		glGenBuffers(
-			sizeof(modelInfo.atrributeBufferIds) / sizeof(GLuint), 
-			modelInfo.atrributeBufferIds
+			sizeof(modelInfo.attributeBufferIds) / sizeof(GLuint), 
+			modelInfo.attributeBufferIds
 		);
 
 		int8_t bufferIdIndex = 0;
 		for (const std::pair<const std::string, int> &attribute : attributes) {
-			const GLuint bufferId = modelInfo.atrributeBufferIds[bufferIdIndex];
+			const GLuint bufferId = modelInfo.attributeBufferIds[bufferIdIndex];
 
 			const tinygltf::Accessor &accessor = gltfData.accessors[attribute.second];
 			const tinygltf::BufferView &bufferView = gltfData.bufferViews[accessor.bufferView];
@@ -292,8 +292,8 @@ public:
 		for (const ModelInfo &model : this->loaded) {
 			glDeleteVertexArrays(1, &model.vertexArrayId);
 			glDeleteBuffers(
-				sizeof(model.atrributeBufferIds) / sizeof(uint32_t), 
-				model.atrributeBufferIds
+				sizeof(model.attributeBufferIds) / sizeof(uint32_t), 
+				model.attributeBufferIds
 			);
 		}
 	}
