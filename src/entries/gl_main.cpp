@@ -28,9 +28,9 @@ int main() {
 
 	// TODO: remove
 	{
-		// uint8_t suzanneModelId = modelLoader.load("Suzanne.gltf");
-		// StaticModel suzanne { suzanneModelId };
-		// components->staticModels.push_back(suzanne);
+		uint8_t suzanneModelId = modelLoader.load("Suzanne.gltf");
+		StaticModel suzanne { suzanneModelId };
+		components->staticModels.push_back(suzanne);
 
 		// uint8_t teapotModelId = modelLoader.load("teapot.gltf");
 		// StaticModel teapot { teapotModelId };
@@ -38,17 +38,16 @@ int main() {
 		// teapot.transform = glm::scale(teapot.transform, glm::vec3(0.05f, 0.05f, 0.05f));
 		// components->staticModels.push_back(teapot);
 
-		uint8_t spoonModelId = modelLoader.load("spoon/scene.gltf");
-		StaticModel spoon { spoonModelId };
-		spoon.transform = glm::rotate(spoon.transform, glm::radians(90.0f), glm::vec3(1, 0, 0));
-		// spoon.transform = glm::scale(spoon.transform, glm::vec3(0.2f, 0.2f, 0.2f));
-		components->staticModels.push_back(spoon);
+		// uint8_t spoonModelId = modelLoader.load("spoon/scene.gltf");
+		// StaticModel spoon { spoonModelId };
+		// spoon.transform = glm::rotate(spoon.transform, glm::radians(90.0f), glm::vec3(1, 0, 0));
+		// components->staticModels.push_back(spoon);
 
-		components->directionalLight.direction = glm::vec3(-1, 0, 0);
-		components->directionalLight.colour = glm::vec3(1);
+		// components->directionalLight.direction = glm::vec3(-1, 0, 0);
+		// components->directionalLight.colour = glm::vec3(1);
 
-		Camera &camera = components->camera;
-		camera.transform = glm::translate(camera.transform, glm::vec3(0.0f, 0.0f, -25.0f));
+		// Camera &camera = components->camera;
+		// camera.transform = glm::translate(camera.transform, glm::vec3(0.0f, 0.0f, -25.0f));
 	}
 
 	// TODO: Remove

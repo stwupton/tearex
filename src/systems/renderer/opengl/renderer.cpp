@@ -36,7 +36,7 @@ public:
 	OpenGLRenderer(
 		ApplicationData *applicationData, 
 		ComponentCollection *components,
-		ModelInfo* loadedModels
+		ModelInfo *loadedModels
 	) : 
 		applicationData(applicationData), 
 		components(components),
