@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <GL/glew.h>
+#include <GL/wglew.h>
 
 #include "input_data.hpp"
 #include "systems/renderer/opengl/renderer.cpp"
@@ -43,7 +44,6 @@ INT createWin32Window(HINSTANCE instanceHandle, INT showFlag) {
 	return 0;
 }
 
-
 INT WINAPI wWinMain(
 	HINSTANCE instanceHandle, 
 	HINSTANCE prevInstanceHandle, 
@@ -65,6 +65,12 @@ INT WINAPI wWinMain(
 	OpenGLRenderer renderer(applicationData, components, modelLoader.loaded);
 	renderer.initialise();
 
+	if (WGLEW_EXT_swap_control) {
+		wglSwapIntervalEXT(1);
+	} else {
+		// TODO(steven): Do something else if there is no swap interval extension
+	}
+
 	// TODO(steven): Debug stuff. Remove
 	{
 		u8 suzanneModelId = modelLoader.load("Suzanne.gltf");
@@ -80,6 +86,7 @@ INT WINAPI wWinMain(
 		// u8 spoonModelId = modelLoader.load("spoon/scene.gltf");
 		// StaticModel spoon { spoonModelId };
 		// spoon.transform = glm::rotate(spoon.transform, glm::radians(90.0f), glm::vec3(1, 0, 0));
+		// spoon.transform = glm::scale(spoon.transform, glm::vec3(0.1f));
 		// components->staticModels.push_back(spoon);
 
 		components->directionalLight.direction = glm::vec3(-1, 0, 0);

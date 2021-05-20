@@ -2,8 +2,6 @@
 
 #include <Windows.h>
 
-#include "GL/wglew.h"
-
 #include "application_data.hpp"
 #include "input_data.hpp"
 
@@ -48,10 +46,6 @@ LRESULT CALLBACK handle(
 
 			glRenderingContext = wglCreateContext(deviceContext);
 			wglMakeCurrent(deviceContext, glRenderingContext);
-
-			// TODO(steven): Do something else if there is no swap interval extension
-			PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-			wglSwapIntervalEXT(2);
 		} break;
 
 		case WM_CLOSE: {
